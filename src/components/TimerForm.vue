@@ -2,10 +2,8 @@
 import { ref } from "vue";
 
 const emit = defineEmits(["add-timer"]);
-
 const newTimerName = ref("");
 const newTimerMinutes = ref(null);
-
 const handleSubmit = () => {
   if (!newTimerName.value) return;
 

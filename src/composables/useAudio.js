@@ -1,6 +1,4 @@
-import { ref } from "vue";
-
-export function useAudio(audioSrc = "blow.mp3") {
+export function useAudio(audioSrc = "alert.mp3") {
   const audio = new Audio(audioSrc);
   audio.volume = 1.0;
 

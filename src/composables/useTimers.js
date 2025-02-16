@@ -1,7 +1,7 @@
 import { ref, watch } from "vue";
 import { STORAGE_KEY } from "../constants";
 import { useAudio } from "./useAudio";
-import { useNotification } from "./useNotifications";
+import { useNotification } from "./useNotification";
 
 export function useTimers() {
   const timers = ref([]);
@@ -24,11 +24,11 @@ export function useTimers() {
       minutes,
       remaining: minutes * 60,
       intervalId: null,
-      isRunning: true,
+      isRunning: false,
     };
 
-		timers.value.push(timer);
-		startTimer(timer);
+    timers.value.push(timer);
+    startTimer(timer);
   };
 
   const startTimer = (timer) => {
@@ -36,13 +36,22 @@ export function useTimers() {
 
     timer.isRunning = true;
     timer.intervalId = setInterval(() => {
-      timer.remaining--;
+      // Create a new reference to force reactivity
+      timers.value = timers.value.map((t) => {
+        if (t.id === timer.id) {
+          return { ...t, remaining: t.remaining - 1 };
+        }
+        return t;
+      });
 
-      if (timer.remaining <= 0) {
+      const currentTimer = timers.value.find((t) => t.id === timer.id);
+      if (currentTimer.remaining <= 0) {
         playSound();
-        sendNotification(`Timer: ${timer.name}`, { body: "Time is up!" });
-        alert(`Timer "${timer.name}" is complete!`);
-        timer.remaining = timer.minutes * 60;
+        sendNotification(`Timer: ${currentTimer.name}`, {
+          body: "Time is up!",
+        });
+        alert(`Timer "${currentTimer.name}" is complete!`);
+        currentTimer.remaining = currentTimer.minutes * 60;
       }
     }, 1000);
   };
